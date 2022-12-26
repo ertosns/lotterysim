@@ -169,5 +169,5 @@ class DarkfiTable:
                         self.darkies[i].update_state()
             feedback=winners
             count+=1
-        #self.pid.write()
+        self.pid.write()
         return self.pid.acc()

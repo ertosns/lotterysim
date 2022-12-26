@@ -13,6 +13,7 @@ KI_SEARCH_END=0.9
 KD_STEP=0.1
 KD_SEARCH_START=-1
 KD_SEARCH_END=1
+EPSILON=0.0001
 
 
 if __name__ == "__main__":
@@ -32,7 +33,7 @@ if __name__ == "__main__":
                     sum_airdrops = 0
                     # random nodes
                     RND_NODES=random.randint(1,NODES)
-                    for idx in range(0,RND_NODES):
+                    for idx in range(3,RND_NODES):
                         # random airdrops
                         darkie_airdrop = None
                         if idx == RND_NODES-1:
@@ -47,7 +48,7 @@ if __name__ == "__main__":
                         dt.add_darkie(darkie)
                         darkie_acc = dt.background()
                         darkie_accs+=[darkie_acc]
-                    acc = sum(darkie_accs)/float(len(darkie_accs))
+                    acc = sum(darkie_accs)/(float(len(darkie_accs))+EPSILON)
                     accs+=[acc]
                 avg_acc = sum(accs)/float(AVG_LEN)
                 gains = (avg_acc, (kp, ki, kd))

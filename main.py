@@ -2,13 +2,14 @@ import random
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 L = 28948022309329048855892746252171976963363056481941560715954676764349967630337
 N_TERM = 2
 AIRDROP = 10
 REWARD = 3
-NODES = 100
-
+NODES = 5
+RUNNING_TIME = 50
 # naive factorial
 def fact(n):
     assert (n>0)
@@ -45,8 +46,8 @@ def rnd():
 
 def lottery(T):
     y =  rnd() * L
-    print("y: ", y)
-    print("T: ", T)
+    #print("y: ", y)
+    #print("T: ", T)
     return y < T
 
 class Tunning:
@@ -62,7 +63,7 @@ class Darkie:
 
     def run(self):
         f = self.tunning.f
-        print("f: ", f)
+        #print("f: ", f)
         Sigma = self.tunning.sigma
         k=N_TERM
         x = (1-f)
@@ -130,15 +131,17 @@ class PID:
         with open("f.hist", "w+") as f:
             f.write(buf)
 
+    def acc(self):
+        return sum(np.array(self.feedback_hist)==1)/float(len(self.feedback_hist))
 
 class DarkfiTable:
-    def __init__(self, airdrop):
+    def __init__(self, airdrop, kp, ki, kd, target):
         self.Sigma=airdrop
         self.darkies = []
-        KP=0.48
-        KI=0.02
-        KD=0.2
-        T=1
+        KP=kp #0.48
+        KI=ki #0.02
+        KD=kd #0.2
+        T=target
         TARGET=1
         self.pid = PID(KP, KI, KD, T, TARGET)
 
@@ -148,7 +151,7 @@ class DarkfiTable:
     def background(self):
         feedback=0
         count = 0
-        while count < 50:
+        while count < RUNNING_TIME:
             f=self.pid.pid_clipped(feedback)
             tunning = Tunning(f, self.Sigma)
             winners = 0
@@ -164,11 +167,54 @@ class DarkfiTable:
             feedback=winners
             count+=1
         self.pid.write()
+        return self.pid.acc()
 
+
+AVG_LEN = 10
+KP_STEP=0.1
+
+KI_STEP=0.01
+KI_SEARCH_START=0.4
+KI_SEARCH_END=0.9
+
+KD_STEP=0.1
+KP_SEARCH_START=-1
+KP_SEARCH_END=1
+
+KD_SEARCH_START=-1
+KD_SEARCH_END=1
 if __name__ == "__main__":
-    dt = DarkfiTable(AIRDROP)
-    for _ in range(0,NODES):
-        # equal airdrops
-        darkie = Darkie(AIRDROP/float(NODES))
-        dt.add_darkie(darkie)
-    dt.background()
+    # kp
+    accuracy = []
+    for kp in tqdm(np.arange(KP_SEARCH_START, KP_SEARCH_END, KP_STEP)):
+        percent = (kp+3)*100/6
+        # ki
+        for ki in np.arange(KI_SEARCH_START, KI_SEARCH_END, KI_STEP):
+            # kd
+            for kd in np.arange(KD_SEARCH_START, KD_SEARCH_END, KD_STEP):
+                target = 1
+                accs = []
+                for i in range(0, AVG_LEN):
+                    dt = DarkfiTable(AIRDROP, kp, ki, kd, target)
+                    darkie_accs = []
+                    for _ in range(0,NODES):
+                        # equal airdrops
+                        darkie = Darkie(AIRDROP/float(NODES))
+                        dt.add_darkie(darkie)
+                        darkie_acc = dt.background()
+                        darkie_accs+=[darkie_acc]
+                    acc = sum(darkie_accs)/float(len(darkie_accs))
+                    accs+=[acc]
+                avg_acc = sum(accs)/float(AVG_LEN)
+                gains = (avg_acc, (kp, ki, kd))
+                accuracy.append(gains)
+                with open("gains_buf.txt", "a+") as f:
+                    line=str(gains[0])+','+','.join([str(i) for i in gains[1]])+'\n'
+                    f.write(line)
+    sorted(accuracy, key=lambda i: i[0], reverse=True)
+    with open("gains.txt", "w+") as f:
+        buff=''
+        for gain in accuracy:
+            line=str(gain[0])+','+','.join([str(i) for i in gains[1]])+'\n'
+            buff+=line
+        f.write(buff)

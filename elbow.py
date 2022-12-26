@@ -22,7 +22,7 @@ with open("gains_buf.txt", "r") as f:
         KP+=[kp]
         KD+=[kd]
         ACC+=[acc]
-img = ax.scatter(KI, KP, KD, c=ACC, cmap=plt.hot())
+img = ax.scatter(KP, KI, KD, c=ACC, cmap=plt.hot())
 ax.set_xlabel("KP")
 ax.set_ylabel("KI")
 ax.set_zlabel("KD")

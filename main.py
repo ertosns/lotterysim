@@ -211,7 +211,7 @@ if __name__ == "__main__":
                 with open("gains_buf.txt", "a+") as f:
                     line=str(gains[0])+','+','.join([str(i) for i in gains[1]])+'\n'
                     f.write(line)
-    sorted(accuracy, key=lambda i: i[0], reverse=True)
+    accuracy=sorted(accuracy, key=lambda i: i[0], reverse=True)
     with open("gains.txt", "w+") as f:
         buff=''
         for gain in accuracy:

@@ -2,25 +2,25 @@ from lottery import *
 
 AVG_LEN = 10
 
-KP_STEP=0.05
-KP_SEARCH_START=0.4
-KP_SEARCH_END=0.9
+KP_STEP=0.3
+KP_SEARCH_START=-1
+KP_SEARCH_END=1
 
-KI_STEP=0.05
-KI_SEARCH_START=0.4
-KI_SEARCH_END=0.9
+KI_STEP=0.3
+KI_SEARCH_START=-1
+KI_SEARCH_END=1
 
-KD_STEP=0.1
+KD_STEP=0.3
 KD_SEARCH_START=-1
 KD_SEARCH_END=1
-EPSILON=0.0001
 
+EPSILON=0.0001
+RUNNING_TIME=50
 
 if __name__ == "__main__":
     # kp
     accuracy = []
     for kp in tqdm(np.arange(KP_SEARCH_START, KP_SEARCH_END, KP_STEP)):
-        percent = (kp+3)*100/6
         # ki
         for ki in np.arange(KI_SEARCH_START, KI_SEARCH_END, KI_STEP):
             # kd
@@ -28,7 +28,7 @@ if __name__ == "__main__":
                 target = 1
                 accs = []
                 for i in range(0, AVG_LEN):
-                    dt = DarkfiTable(AIRDROP, kp, ki, kd, target)
+                    dt = DarkfiTable(AIRDROP, kp, ki, kd, target, RUNNING_TIME)
                     darkie_accs = []
                     sum_airdrops = 0
                     # random nodes
@@ -52,14 +52,14 @@ if __name__ == "__main__":
                     accs+=[acc]
                 avg_acc = sum(accs)/float(AVG_LEN)
                 gains = (avg_acc, (kp, ki, kd))
-                accuracy.append(gains)
-                with open("gains_buf.txt", "a+") as f:
-                    line=str(gains[0])+','+','.join([str(i) for i in gains[1]])+'\n'
-                    f.write(line)
+                accuracy+=[gains]
+                #with open("gains_buf.txt", "a+") as f:
+                    #line=str(gains[0])+','+','.join([str(i) for i in gains[1]])+'\n'
+                    #f.write(line)
     accuracy=sorted(accuracy, key=lambda i: i[0], reverse=True)
-    with open("gains.txt", "w+") as f:
+    with open("gains.txt", "w") as f:
         buff=''
         for gain in accuracy:
-            line=str(gain[0])+','+','.join([str(i) for i in gains[1]])+'\n'
+            line=str(gain[0])+','+','.join([str(i) for i in gain[1]])+'\n'
             buff+=line
-        f.write(buff)
+            f.write(buff)

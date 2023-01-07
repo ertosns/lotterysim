@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
-with open("gains_buf.txt", "r") as f:
+with open("gains.txt", "r") as f:
     buf = f.read().split('\n')
     KI = []
     KP = []

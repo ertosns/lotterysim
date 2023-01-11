@@ -39,6 +39,7 @@ plt.scatter([i[0] for i in lottery], [1]*len(lottery), c="#000000")
 plt.scatter([i[1] for i in lottery], [3]*len(lottery), c="#ff0000")
 
 plt.scatter([i[0] for i in sim_lottery], [-1]*len(sim_lottery), c="#000000")
-plt.scatter([i[1] for i in sim_lottery], [-3]*len(sim_lottery), c="#ff0000")
+plt.scatter([i[1] for i in sim_lottery], [-3]*len(sim_lottery), c="#00ff00")
 
+plt.legend(["darkfid y", "darkfid T", "simulation y", "simulation T"])
 plt.savefig("/tmp/lottery_dist.png")

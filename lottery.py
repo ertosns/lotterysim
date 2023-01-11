@@ -6,9 +6,7 @@ from tqdm import tqdm
 
 L = 28948022309329048855892746252171976963363056481941560715954676764349967630337
 N_TERM = 2
-AIRDROP = 1000
 REWARD = 1
-NODES = 100
 
 # naive factorial
 def fact(n):
@@ -58,6 +56,7 @@ class Tunning:
 
 class Darkie:
     def __init__(self, airdrop):
+        self.finalized_stake=airdrop
         self.stake = airdrop
         self.state = None
         self.tunning = None
@@ -69,8 +68,11 @@ class Darkie:
         #print("total stake: {}".format(Sigma))
         k=N_TERM
         x = (1-f)
+
         c = math.log(x)
+
         sigmas = [int((c/Sigma)**i * (L/fact(i))) for i in range(1, k+1)]
+
         T = approx_target_in_zk(sigmas, self.stake)
         is_lead = lottery(T)
         self.state = State(f, T, is_lead)
@@ -78,12 +80,17 @@ class Darkie:
     def set_in(self, tunning):
         self.tunning =tunning
 
-    def update_state(self):
+    def update_stake(self):
         self.stake+=REWARD
+
+    def finalize_stake(self):
+        self.stake=self.finalized_stake
+        self.stake+=REWARD
+        self.finalized_stake=self.stake
 
 PREV_FEEDBACK=0
 class PID:
-    def __init__(self, kp, ki, kd, T, target):
+    def __init__(self, kp, ki, kd, T, target, debug=False):
         self.Kp = kp
         self.Ki = ki
         self.Kd = kd
@@ -93,6 +100,7 @@ class PID:
         self.feedback_hist = [PREV_FEEDBACK]
         self.f_hist = [0]
         self.error_hist = [0, 0]
+        self.debug=debug
 
     def pid(self, feedback):
         ret =  (self.Kp * self.proportional(feedback)) + (self.Ki * self.integral(feedback)) + (self.Kd * self.derivative(feedback))
@@ -100,26 +108,27 @@ class PID:
         self.prev_feedback=feedback
         return ret
 
-    def discrete_pid(self, feedback):
+    def discrete_pid(self, feedback, debug=True):
         k1 = self.Kp + self.Ki + self.Kd
         k2 = -1 * self.Kp -2 * self.Kd
         k3 = self.Kd
         err = self.proportional(feedback)
-        #print("pid::f-1: {}".format(self.f_hist[-1]))
-        #print("pid::err: {}".format(err))
-        #print("pid::err-1: {}".format(self.error_hist[-1]))
-        #print("pid::err-2: {}".format(self.error_hist[-2]))
-        #print("pid::k1: {}".format(k1))
-        #print("pid::k2: {}".format(k2))
-        #print("pid::k3: {}".format(k3))
+        if debug:
+            print("pid::f-1: {}".format(self.f_hist[-1]))
+            print("pid::err: {}".format(err))
+            print("pid::err-1: {}".format(self.error_hist[-1]))
+            print("pid::err-2: {}".format(self.error_hist[-2]))
+            print("pid::k1: {}".format(k1))
+            print("pid::k2: {}".format(k2))
+            print("pid::k3: {}".format(k3))
         ret = self.f_hist[-1] + k1 * err + k2 * self.error_hist[-1] + k3 * self.error_hist[-2]
 
         self.error_hist+=[err]
         self.feedback_hist+=[feedback]
         return ret
 
-    def pid_clipped(self, feedback):
-        pid_value = self.discrete_pid(feedback)
+    def pid_clipped(self, feedback, debug=True):
+        pid_value = self.discrete_pid(feedback, debug)
         if pid_value <= 0.0:
             pid_value = 0.01
         elif pid_value >= 1:
@@ -183,26 +192,30 @@ class DarkfiTable:
     def add_darkie(self, darkie):
         self.darkies+=[darkie]
 
-    def background(self, discrete=True, rand_running_time=True):
+    def background(self, discrete=True, rand_running_time=True, debug=True):
         feedback=0
         count = 0
         # random running time
         RND_RUNNING_TIME = random.randint(1,self.running_time) if rand_running_time else self.running_time
         while count < RND_RUNNING_TIME:
-            f=self.pid.pid_clipped(feedback)
+            f=self.pid.pid_clipped(feedback, debug)
             #print("f: {}".format(f))
             self.f_hist+=[f]
-            tunning = Tunning(f, self.Sigma)
             winners = 0
             for i, darkie in enumerate(self.darkies):
+                relative_total_stake = self.Sigma + self.darkies[i].stake - self.darkies[i].finalized_stake
+                tunning = Tunning(f, relative_total_stake)
                 self.darkies[i].set_in(tunning)
                 self.darkies[i].run()
-                winners+=self.darkies[i].state.won
+                darkie_won = self.darkies[i].state.won
+                if darkie_won:
+                    self.darkies[i].update_stake()
+                    winners+=darkie_won
             if winners==1:
                 self.Sigma+=REWARD
                 for i, darkie in enumerate(self.darkies):
                     if self.darkies[i].state.won:
-                        self.darkies[i].update_state()
+                        self.darkies[i].finalize_stake()
             feedback=winners
             count+=1
         self.pid.write()
@@ -212,6 +225,6 @@ class DarkfiTable:
         with open("f_val.hist", 'w+') as file:
             buf = ''
             for f in self.f_hist:
-                line=str(f)+'\n'
+                line=str(f)+','
                 buf+=line
             file.write(buf)

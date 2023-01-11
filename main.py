@@ -2,20 +2,36 @@ from lottery import *
 
 AVG_LEN = 10
 
-KP_STEP=0.3
-KP_SEARCH_START=-1
-KP_SEARCH_END=1
+KP_STEP=0.03
+KP_SEARCH_START=-0.3
+KP_SEARCH_END=0.3
 
-KI_STEP=0.3
-KI_SEARCH_START=-1
-KI_SEARCH_END=1
+KI_STEP=0.03
+KI_SEARCH_START=-0.1
+KI_SEARCH_END=0.1
 
-KD_STEP=0.3
-KD_SEARCH_START=-1
-KD_SEARCH_END=1
+KD_STEP=0.03
+KD_SEARCH_START=-0.1
+KD_SEARCH_END=0.1
 
 EPSILON=0.0001
-RUNNING_TIME=50
+RUNNING_TIME=1000
+
+AIRDROP=1000
+NODES=5
+
+randomize_nodes_str = input("randomize number of nodes (y/n):")
+randomize_nodes = True if randomize_nodes_str.lower()=="y" else False
+
+discrete_pid_str = input("discrete controller (y/n):")
+discrete_pid = True if discrete_pid_str.lower()=="y" else False
+
+rand_running_time_str = input("random running time (y/n):")
+rand_running_time = True if rand_running_time_str.lower()=="y" else False
+
+debug_str = input("debug mode (y/n):")
+debug = True if debug_str.lower()=="y" else False
+
 
 if __name__ == "__main__":
     # kp
@@ -32,8 +48,8 @@ if __name__ == "__main__":
                     darkie_accs = []
                     sum_airdrops = 0
                     # random nodes
-                    RND_NODES=random.randint(1,NODES)
-                    for idx in range(3,RND_NODES):
+                    RND_NODES = random.randint(1, NODES) if randomize_nodes else NODES
+                    for idx in range(0,RND_NODES):
                         # random airdrops
                         darkie_airdrop = None
                         if idx == RND_NODES-1:
@@ -46,16 +62,13 @@ if __name__ == "__main__":
                         sum_airdrops += darkie_airdrop
                         darkie = Darkie(darkie_airdrop)
                         dt.add_darkie(darkie)
-                        darkie_acc = dt.background()
+                        darkie_acc = dt.background(discrete_pid, rand_running_time, debug)
                         darkie_accs+=[darkie_acc]
                     acc = sum(darkie_accs)/(float(len(darkie_accs))+EPSILON)
                     accs+=[acc]
                 avg_acc = sum(accs)/float(AVG_LEN)
                 gains = (avg_acc, (kp, ki, kd))
                 accuracy+=[gains]
-                #with open("gains_buf.txt", "a+") as f:
-                    #line=str(gains[0])+','+','.join([str(i) for i in gains[1]])+'\n'
-                    #f.write(line)
     accuracy=sorted(accuracy, key=lambda i: i[0], reverse=True)
     with open("gains.txt", "w") as f:
         buff=''

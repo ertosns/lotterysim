@@ -9,10 +9,9 @@ simulate darkfi consensus lottery with a discrete controler
 # discrete pid controller.
 control lottery f tunning paramter
 
-$k_1 = k_p + K_i + K_d$
-$k_2 = -K_p -2K_d$
-$k_3 = K_d$
 $$f[k] = f[k-1] + K_1e[k] + K_2e[k-1] + K_3e[k-2]$$
+
+with $k_1 = k_p + K_i + K_d$,  $k_2 = -K_p -2K_d$,  $k_3 = K_d$, and e is the error function.
 
 # simulation criterion
 find $K_p$, $k_i$, $K_d$ for highest accuracy running the simulation on N trials, of random number of nodes, starting with random airdrop (that all sum to total network stake), running for random runing_time.

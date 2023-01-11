@@ -17,7 +17,7 @@ $$f[k] = f[k-1] + K_1e[k] + K_2e[k-1] + K_3e[k-2]$$
 # simulation criterion
 find $K_p$, $k_i$, $K_d$ for highest accuracy running the simulation on N trials, of random number of nodes, starting with random airdrop (that all sum to total network stake), running for random runing_time.
 
-![alt text](https://github.com/ertosns/lotterysim/blob/master/hueristics.png?raw=true)
+![alt text](https://github.com/ertosns/lotterysim/blob/master/heuristics.png?raw=true)
 
 notice that best parameters are spread out in the search space, picking the highest of which, and running the simulation, running for 600 slots.
 
@@ -35,4 +35,4 @@ notice below that both y,T in the pallas field, and simulation have same range.
 using discrete controller the lottery accuracy > 33% with randomized number of nodes, and randomized relative stake.
 can be coupled with khonsu[^1] to achieve 100% accuracy and instant finality.
 
-[^1](https://github.com/ertosns/thunderbolt)
+[^1]: https://github.com/ertosns/thunderbolt

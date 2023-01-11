@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+ax = fig.add_subplot(projection='3d', azim=30)
 with open("gains.txt", "r") as f:
     buf = f.read().split('\n')
     KI = []
@@ -27,4 +27,5 @@ ax.set_xlabel("KP")
 ax.set_ylabel("KI")
 ax.set_zlabel("KD")
 fig.colorbar(img)
-plt.show()
+plt.savefig("heuristics.png")
+#plt.show()

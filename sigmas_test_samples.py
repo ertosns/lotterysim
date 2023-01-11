@@ -6,13 +6,14 @@ the output in csv format: f,Sigma,sigma1,sigma2 respectively for 2-term approxim
 
 from lottery import *
 import numpy as np
+
+SEP=','
+
 def calc_sigmas(f, Sigma):
     k=N_TERM
     x = (1-f)
-    print("x: {:}".format(x))
     c = math.log(x)
     neg_c = -1*c
-    print("c: {:}".format(neg_c))
     sigmas = [(int((neg_c/Sigma)**i * (L/fact(i)))) for i in range(1, k+1)]
 
     return sigmas
@@ -26,6 +27,9 @@ with open("pallas_unittests.csv", 'w') as file:
     for f in np.arange(0.01, 0.99, 10):
         for total_stake in np.arange(100, 1000, 10):
             sigmas = calc_sigmas(f, total_stake)
-            line=str(f) + ',' + str(total_stake) +  '{:x}'.format(sigmas[0]) + '{:x}'.format(sigmas[1]) + '\n'
+            line=str(f) + SEP + \
+                str(total_stake) + SEP + \
+                '{:x}'.format(sigmas[0]) + SEP + \
+                '{:x}'.format(sigmas[1]) + '\n'
             buf+=line
     file.write(buf)

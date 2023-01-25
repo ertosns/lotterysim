@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-os.system("cat f[0-9]* > f.hist")
-os.system("cat leads[0-9]* > leads.hist")
+os.system("cat f0* > f.hist")
+os.system("cat leads0* > leads.hist")
 
 LEAD_FILE = "leads.hist"
 F_FILE = "f.hist"

@@ -71,6 +71,8 @@ class DarkfiTable:
         count = 0
         # random running time
         RND_RUNNING_TIME = random.randint(1,self.running_time) if rand_running_time else self.running_time
+        if rand_running_time:
+            print("random running time: {}".format(RND_RUNNING_TIME))
         while count < RND_RUNNING_TIME:
             winners = 0
             for i, darkie in enumerate(self.darkies):

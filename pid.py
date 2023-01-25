@@ -98,8 +98,6 @@ class PID:
         buf+=','
         for i in self.feedback_hist[1:]:
             buf+=str(i)+','
-        #if len(self.feedback_hist)>1:
-            #buf+=str(self.feedback_hist[-1])
         with open(lead_hist_file, "w+") as f:
             f.write(buf)
 
@@ -111,8 +109,6 @@ class PID:
         buf+=','
         for i in self.f_hist[1:]:
             buf+=str(i)+','
-        #if len(self.f_hist)>1:
-            #buf+=str(self.f_hist[-1])
         with open(f_hist_file, "w+") as f:
             f.write(buf)
 

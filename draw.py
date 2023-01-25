@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-os.system("rm f.hist; cat f[0-9]* > f.hist")
-LEAD_FILE = "f.hist"
-F_FILE = "leads.hist"
+os.system("cat f[0-9]* > f.hist")
+os.system("cat leads[0-9]* > leads.hist")
+
+LEAD_FILE = "leads.hist"
+F_FILE = "f.hist"
 
 LEAD_PROCESSED_IMG = "lead_history_processed.png"
 F_PROCESSED_IMG = "f_history_processed.png"
@@ -23,6 +25,7 @@ with open(LEAD_FILE) as f:
     plt.plot(node_log)
     plt.legend(['#leads'])
     plt.savefig(LEAD_PROCESSED_IMG)
+
 
 with open(F_FILE) as f:
     buf = f.read()

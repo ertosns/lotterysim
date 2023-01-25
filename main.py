@@ -30,14 +30,7 @@ rand_running_time = True if rand_running_time_str.lower()=="y" else False
 debug_str = input("debug mode (y/n):")
 debug = True if debug_str.lower()=="y" else False
 
-    
-def single_runtime(dt, darkie_accs, controller=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0):
-    darkie = Darkie(controller, 0, kp=kp, ki=ki, kd=kd)
-    dt.add_darkie(darkie)
-    darkie_acc = dt.background(rand_running_time)
-    darkie_accs+=[darkie_acc]
-
-def experiment(threads, accs, controller=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0):
+def experiment(accs, controller=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0):
     dt = DarkfiTable(0, RUNNING_TIME)
     darkie_accs = []
     #sum_airdrops = 0
@@ -54,22 +47,16 @@ def experiment(threads, accs, controller=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, k
                 #continue
             #darkie_airdrop = random.randrange(1, remaining_stake)
         #sum_airdrops += darkie_airdrop
-        thread = Thread(target=single_runtime, args=(dt, darkie_accs, controller, kp, ki, kd))
-        thread.start()
-        threads += [thread]
-    for thread in threads:
-        thread.join()
+        darkie = Darkie(controller, 0, kp=kp, ki=ki, kd=kd)
+        dt.add_darkie(darkie)
+        darkie_acc = dt.background(rand_running_time)
+        darkie_accs+=[darkie_acc]
     acc = sum(darkie_accs)/(float(len(darkie_accs))+EPSILON)
     accs+=[acc]
-
-
-#dt = DarkfiTable(0, RUNNING_TIME)
-#darkie_accs = []
 
 accuracy = []
 if __name__ == "__main__":
     # kp
-    
     for kp in tqdm(np.arange(KP_SEARCH_START, KP_SEARCH_END, KP_STEP)):
         # ki
         for ki in np.arange(KI_SEARCH_START, KI_SEARCH_END, KI_STEP):
@@ -79,7 +66,7 @@ if __name__ == "__main__":
                 experiment_accs = []
                 exp_threads = []
                 for i in range(0, AVG_LEN):
-                    exp_thread = Thread(target=experiment, args=(exp_threads, experiment_accs, CONTROLLER_TYPE_DISCRETE, kp, ki, kd))
+                    exp_thread = Thread(target=experiment, args=[experiment_accs, CONTROLLER_TYPE_DISCRETE, kp, ki, kd])
                     exp_thread.start()
                 for thread in exp_threads:
                     thread.join()

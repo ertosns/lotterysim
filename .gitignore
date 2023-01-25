@@ -1,3 +1,4 @@
 *.txt
 *.hist
+__pycache__/
 

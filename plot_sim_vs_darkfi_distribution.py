@@ -14,7 +14,7 @@ with open(LOTTERY_FILE) as f:
     buf = f.read()
     lines = buf.split("\n")
     RUNNING_TIME = len(lines)
-    for line in lines[:-1]:
+    for line in lines[500:-1]:
         ret = line.split(",")
         lottery +=[[int(ret[0], 16), int(ret[1], 16)]]
 
@@ -31,7 +31,7 @@ with open(SIM_LOTTERY_FILE) as f:
     buf = f.read()
     lines = buf.split("\n")
     RUNNING_TIME = len(lines)
-    for line in lines[:-1]:
+    for line in lines[500:-1]:
         ret = line.split(",")
         sim_lottery +=[[float(ret[0]), float(ret[1])]]
 

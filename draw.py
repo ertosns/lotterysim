@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
+os.system("rm f.hist; cat f[0-9]* > f.hist")
 LEAD_FILE = "f.hist"
-F_FILE = "f_val.hist"
+F_FILE = "leads.hist"
 
 LEAD_PROCESSED_IMG = "lead_history_processed.png"
 F_PROCESSED_IMG = "f_history_processed.png"

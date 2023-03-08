@@ -112,7 +112,7 @@ class PID:
         with open(f_hist_file, "w+") as f:
             f.write(buf)
 
-    def write(self, lead_hist_file, f_hist_file):
+    def write(self, lead_hist_file='leads.hist', f_hist_file='f.hist'):
         self.write_feedback(lead_hist_file)
         self.write_fval(f_hist_file)
 

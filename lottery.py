@@ -26,7 +26,7 @@ class DarkfiTable:
         # random running time
         rand_running_time = random.randint(1,self.running_time) if rand_running_time else self.running_time
         self.running_time = rand_running_time
-        if rand_running_time:
+        if rand_running_time and debug:
             print("random running time: {}".format(self.running_time))
         spinoffs = []
         joins = []

@@ -1,14 +1,14 @@
 from lottery import *
 import os
 
-os.system("rm f[0-9]*; rm leads[0-9]*; rm f.hist; rm leads.hist")
+os.system("rm f.hist; rm leads.hist")
 
 RUNNING_TIME = int(input("running time:"))
 
 
 if __name__ == "__main__":
     darkies = []
-    darkies += [Darkie(0) for id in range(random.randint(5,20))]
+    darkies += [Darkie(0) for id in range(1000)]
     airdrop = 0
     for darkie in darkies:
         airdrop+=darkie.stake

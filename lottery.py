@@ -34,6 +34,7 @@ class DarkfiTable:
         restarts = []
         pids = []
         length = len(self.darkies)
+        print('running time: {}'.format(self.running_time))
         while count < self.running_time:
             winners = 0
 
@@ -44,6 +45,15 @@ class DarkfiTable:
             f = self.pid.pid_clipped(feedback, self.controller_type, debug)
             pids += [time.time() - pid_start]
 
+            #####################
+            #note!
+            # thread overhead is 10X slower than than node execution!
+            #####################
+            for i in range(length):
+                self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f)
+                self.darkies[i].run()
+            count+=1
+            '''
             ###
             # spin off threads
             ###
@@ -76,7 +86,7 @@ class DarkfiTable:
                     self.darkies[i].finalize_stake()
             feedback = winners
             assert (feedback <= len(self.darkies))
-            count += 1
+
             finalizations += [time.time() - finalization_start]
 
             ###
@@ -86,14 +96,20 @@ class DarkfiTable:
             for i in range(length):
                 self.darkies[i] = self.darkies[i].clone()
             restarts += [time.time() - restart_start]
+            count += 1
+            '''
+
 
         self.end_time=time.time()
+        '''
         if debug:
             print("pid per slot: {}.".format(str(timedelta(seconds=sum(pids)/len(pids)))))
             print("spin off per slot: {}.".format(str(timedelta(seconds=sum(spinoffs)/len(spinoffs)))))
             print("thread work per slot: {}.".format(str(timedelta(seconds=sum(joins)/len(joins)))))
             print("finalization per slot: {}.".format(str(timedelta(seconds=sum(finalizations)/len(finalizations)))))
             print("restart per slot: {}.".format(str(timedelta(seconds=sum(restarts)/len(restarts)))))
+        '''
+
         return self.pid.acc()
 
     def write(self):

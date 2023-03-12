@@ -31,87 +31,18 @@ class DarkfiTable:
         if rand_running_time and debug:
             print("random running time: {}".format(self.running_time))
             print('running time: {}'.format(self.running_time))
-        spinoffs = []
-        joins = []
-        finalizations = []
-        restarts = []
-        pids = []
-        length = len(self.darkies)
         while count < self.running_time:
-            winners = 0
-
-            ###
-            # controller
-            ###
-            pid_start = time.time()
+            winners=0
             f = self.pid.pid_clipped(feedback, self.controller_type, debug)
-            pids += [time.time() - pid_start]
-
-            #####################
-            #note!
-            # thread overhead is 10X slower than than node execution!
-            #####################
-            for i in range(length):
+            #note! thread overhead is 10X slower than sequential node execution!
+            for i in range(len(self.darkies)):
                 self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f)
                 self.darkies[i].run()
-            count+=1
-            '''
-            ###
-            # spin off threads
-            ###
-            spin_off_start = time.time()
-            for i in range(length):
-                self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f)
-                self.darkies[i].start()
-            spinoffs += [time.time() - spin_off_start]
-
-            ###
-            # join threads,
-            ###
-            join_start = time.time()
-            for i in range(length):
-                self.darkies[i].join()
-                darkie_won = self.darkies[i].won
-                if darkie_won:
-                    self.darkies[i].update_stake()
-                    winners+=darkie_won
-            joins += [time.time() - join_start]
-
-            ###
-            # resolve finalization:
-            # reset stakes when finalization is resolved.
-            ###
-            finalization_start = time.time()
-            if winners==1:
-                self.Sigma+=REWARD
-                for i in range(length):
-                    self.darkies[i].finalize_stake()
+            for i in range(len(self.darkies)):
+                winners += self.darkies[i].won
             feedback = winners
-            assert (feedback <= len(self.darkies))
-
-            finalizations += [time.time() - finalization_start]
-
-            ###
-            # restart thread
-            ###
-            restart_start = time.time()
-            for i in range(length):
-                self.darkies[i] = self.darkies[i].clone()
-            restarts += [time.time() - restart_start]
-            count += 1
-            '''
-
-
+            count+=1
         self.end_time=time.time()
-        '''
-        if debug:
-            print("pid per slot: {}.".format(str(timedelta(seconds=sum(pids)/len(pids)))))
-            print("spin off per slot: {}.".format(str(timedelta(seconds=sum(spinoffs)/len(spinoffs)))))
-            print("thread work per slot: {}.".format(str(timedelta(seconds=sum(joins)/len(joins)))))
-            print("finalization per slot: {}.".format(str(timedelta(seconds=sum(finalizations)/len(finalizations)))))
-            print("restart per slot: {}.".format(str(timedelta(seconds=sum(restarts)/len(restarts)))))
-        '''
-
         return self.pid.acc()
 
     def write(self):

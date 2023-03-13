@@ -2,10 +2,10 @@ from utils import *
 from threading import Thread
 
 class Darkie(Thread):
-    def __init__(self, airdrop):
+    def __init__(self, airdrop, hp=False):
         Thread.__init__(self)
-        self.stake = Num(airdrop)
-        self.finalized_stake = Num(airdrop) # after fork finalization
+        self.stake = (Num(airdrop) if hp else airdrop)
+        self.finalized_stake = (Num(airdrop) if hp else airdrop) # after fork finalization
         self.Sigma = None
         self.feedback = None
         self.f = None
@@ -14,21 +14,21 @@ class Darkie(Thread):
     def clone(self):
         return Darkie(self.finalized_stake)
 
-    def set_sigma_feedback(self, sigma, feedback, f):
-        self.Sigma = Num(sigma)
-        self.feedback = Num(feedback)
-        self.f = Num(f)
+    def set_sigma_feedback(self, sigma, feedback, f, hp=False):
+        self.Sigma = (Num(sigma) if hp else sigma)
+        self.feedback = (Num(feedback) if hp else feedback)
+        self.f = (Num(f) if hp else f)
 
-    def run(self):
+    def run(self, hp=False):
         k=N_TERM
         def target(tune_parameter, stake):
-            x = Num(1)-tune_parameter
+            x = Num(1)  - tune_parameter
             c = x.ln()
-            sigmas = [(c/((self.Sigma+EPSILON)**i) * (L/fact(i))) for i in range(1, k+1)]
-            scaled_target = approx_target_in_zk(sigmas, stake) + BASE_L
+            sigmas = [(c/((self.Sigma+EPSILON)**i) * (L_HP/fact(i))) for i in range(1, k+1)]
+            scaled_target = approx_target_in_zk(sigmas, stake) + BASE_L_HP
             return scaled_target
         T = target(self.f, self.finalized_stake)
-        self.won = lottery(T)
+        self.won = lottery(T, hp)
 
     def update_stake(self):
         self.stake+=REWARD

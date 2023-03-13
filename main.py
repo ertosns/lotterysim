@@ -57,24 +57,26 @@ def multi_trial_exp(gains, kp, ki, kd, hp=False):
     #for thread in exp_threads:
         #thread.join()
     avg_acc = sum(experiment_accs)/float(AVG_LEN)
+    buff = 'accuracy:{}, kp: {}, ki:{}, kd:{}'.format(avg_acc, kp, ki, kd)
+    print(buff)
     if avg_acc > 0:
         gain = (avg_acc, (kp, ki, kd))
         gains += [gain]
         if avg_acc > highest_acc:
             highest_acc = avg_acc
             with open("highest_gain.txt", 'w') as f:
-                buff = 'accuracy,kp,ki,kd\n\r{},{},{},{}'.format(avg_acc, kp, ki, kd)
                 f.write(buff)
 
 def single_trial_exp(gains, kp, ki, kd, hp=False):
     acc = experiment(kp=kp, ki=ki, kd=kd, hp=hp)
+    buff = 'accuracy:{}, kp: {}, ki:{}, kd:{}'.format(acc, kp, ki, kd)
+    print(buff)
     if acc > 0:
         gain = (acc, (kp, ki, kd))
         gains += [gain]
         if acc > highest_acc:
             highest_acc = acc
             with open("highest_gain.txt", 'w') as f:
-                buff = 'accuracy,kp,ki,kd\n\r{},{},{},{}'.format(avg_acc, kp, ki, kd)
                 f.write(buff)
         gains += [gain]
 

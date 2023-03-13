@@ -118,7 +118,7 @@ class DarkfiTable:
         self.start_time=None
         self.end_time=None
         self.pid = None
-        self.pid = PID(kp=kp, ki=ki, kd=kd, dt=dt, target=target, Kc=kc, Ti=ti, Td=td, Ts=ts, hp=True)
+        self.pid = PID(kp=kp, ki=ki, kd=kd, dt=dt, target=target, Kc=kc, Ti=ti, Td=td, Ts=ts)
         self.controller_type=controller_type
         self.debug=debug
 
@@ -138,7 +138,7 @@ class DarkfiTable:
             print('running time: {}'.format(self.running_time))
         while count < self.running_time:
             winners=0
-            f = self.pid.pid_clipped(feedback, self.controller_type, debug, hp)
+            f = self.pid.pid_clipped(feedback, self.controller_type, debug)
             #note! thread overhead is 10X slower than sequential node execution!
             for i in range(len(self.darkies)):
                 self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f, hp)

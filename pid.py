@@ -1,16 +1,15 @@
 from utils import *
-from decimal import Decimal as Num
 
 class PID:
-    def __init__(self, kp=0, ki=0, kd=0, dt=1, target=1, Kc=0, Ti=0, Td=0, Ts=0, debug=False, hp=False):
-        self.Kp = Num(kp) if hp else kp # discrete pid kp
-        self.Ki = Num(ki) if hp else ki# discrete pid ki
-        self.Kd = Num(kd) if hp else kd# discrete pid kd
-        self.T = Num(dt) if hp else dt# discrete pid frequency time.
-        self.Ti = Num(Ti) if hp else Ti# takahashi ti
-        self.Td = Num(Td) if hp else Td# takahashi td
-        self.Ts = Num(Ts) if hp else Ts# takahashi ts
-        self.Kc = Num(Kc) if hp else Kc# takahashi kc
+    def __init__(self, kp=0, ki=0, kd=0, dt=1, target=1, Kc=0, Ti=0, Td=0, Ts=0, debug=False):
+        self.Kp = kp # discrete pid kp
+        self.Ki = ki # discrete pid ki
+        self.Kd = kd # discrete pid kd
+        self.T = dt # discrete pid frequency time.
+        self.Ti = Ti # takahashi ti
+        self.Td = Td # takahashi td
+        self.Ts = Ts # takahashi ts
+        self.Kc = Kc # takahashi kc
         self.target = target # pid set point
         self.prev_feedback = 0
         self.feedback_hist = [0, 0]
@@ -24,9 +23,9 @@ class PID:
         self.prev_feedback=feedback
         return ret
 
-    def discrete_pid(self, feedback, debug=True, hp=False):
+    def discrete_pid(self, feedback, debug=True):
         k1 = self.Kp + self.Ki + self.Kd
-        k2 = (Num(-1) if hp else -1) * self.Kp - (Num(2) if hp else 2) * self.Kd
+        k2 = -1 * self.Kp - 2 * self.Kd
         k3 = self.Kd
         err = self.proportional(feedback)
         #if debug:
@@ -50,21 +49,21 @@ class PID:
         self.feedback_hist+=[feedback]
         return ret
 
-    def pid_clipped(self, feedback, controller=CONTROLLER_TYPE_DISCRETE, debug=True, hp=False):
+    def pid_clipped(self, feedback, controller=CONTROLLER_TYPE_DISCRETE, debug=True):
         pid_value = None
         if controller == CONTROLLER_TYPE_TAKAHASHI:
             pid_value = self.takahashi(feedback, debug)
         elif controller == CONTROLLER_TYPE_DISCRETE:
-            pid_value = self.discrete_pid(feedback, debug, hp)
+            pid_value = self.discrete_pid(feedback, debug)
         else:
             pid_value = self.pid(feedback)
 
         if pid_value <= 0.0:
-            pid_value = (F_MIN_HP  if hp else F_MIN)
+            pid_value = F_MIN
         elif pid_value >= 1:
-            pid_value =  (F_MAX_HP if hp else F_MAX)
+            pid_value =  F_MAX
         if self.integral(feedback) == 0 and len(self.feedback_hist) >=3 and self.feedback_hist[-1] == 0 and self.feedback_hist[-2] == 0 and self.feedback_hist[-3] == 0:
-            pid_value = (Num(0.9) if hp else 0.9)**self.zero_lead_hist()
+            pid_value = 0.9**self.zero_lead_hist()
         self.f_hist+=[pid_value]
         return pid_value
 

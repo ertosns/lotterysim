@@ -1,15 +1,16 @@
 from utils import *
+from decimal import Decimal as Num
 
 class PID:
     def __init__(self, kp=0, ki=0, kd=0, dt=1, target=1, Kc=0, Ti=0, Td=0, Ts=0, debug=False):
-        self.Kp = kp # discrete pid kp
-        self.Ki = ki # discrete pid ki
-        self.Kd = kd # discrete pid kd
-        self.T = dt # discrete pid frequency time.
-        self.Ti = Ti # takahashi ti
-        self.Td = Td # takahashi td
-        self.Ts = Ts # takahashi ts
-        self.Kc = Kc # takahashi kc
+        self.Kp = Num(kp) # discrete pid kp
+        self.Ki = Num(ki) # discrete pid ki
+        self.Kd = Num(kd) # discrete pid kd
+        self.T = Num(dt) # discrete pid frequency time.
+        self.Ti = Num(Ti) # takahashi ti
+        self.Td = Num(Td) # takahashi td
+        self.Ts = Num(Ts) # takahashi ts
+        self.Kc = Num(Kc) # takahashi kc
         self.target = target # pid set point
         self.prev_feedback = 0
         self.feedback_hist = [0, 0]
@@ -25,7 +26,7 @@ class PID:
 
     def discrete_pid(self, feedback, debug=True):
         k1 = self.Kp + self.Ki + self.Kd
-        k2 = -1 * self.Kp -2 * self.Kd
+        k2 = Num(-1) * self.Kp - Num(2) * self.Kd
         k3 = self.Kd
         err = self.proportional(feedback)
         #if debug:
@@ -64,7 +65,7 @@ class PID:
         elif pid_value >= 1:
             pid_value =  F_MAX
         if self.integral(feedback) == 0 and len(self.feedback_hist) >=3 and self.feedback_hist[-1] == 0 and self.feedback_hist[-2] == 0 and self.feedback_hist[-3] == 0:
-            pid_value = math.pow(0.9, self.zero_lead_hist())
+            pid_value = Num(0.9)**self.zero_lead_hist()
         self.f_hist+=[pid_value]
         return pid_value
 
@@ -79,7 +80,7 @@ class PID:
         return count
 
     def error(self, feedback):
-        return self.target - feedback
+        return feedback - self.target
 
     def proportional(self,  feedback):
         return self.error(feedback)

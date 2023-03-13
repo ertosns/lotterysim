@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-os.system("cat f0* > f.hist")
-os.system("cat leads0* > leads.hist")
 
 LEAD_FILE = "leads.hist"
 F_FILE = "f.hist"
@@ -12,7 +10,7 @@ LEAD_PROCESSED_IMG = "lead_history_processed.png"
 F_PROCESSED_IMG = "f_history_processed.png"
 
 SEP = ","
-NODES = 5 # nuber of nodes logged
+NODES = 1000 # number of nodes logged
 
 with open(LEAD_FILE) as f:
     buf = f.read()

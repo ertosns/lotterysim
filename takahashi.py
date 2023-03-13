@@ -1,6 +1,6 @@
 from lottery import *
 
-AVG_LEN = 5
+AVG_LEN = 3
 
 KC_STEP=0.1
 KC_SEARCH_START=-2.3
@@ -21,7 +21,7 @@ TS_SEARCH_END=-0.2
 EPSILON=0.0001
 RUNNING_TIME=1000
 
-NODES=30
+NODES=1000
 
 randomize_nodes_str = input("randomize number of nodes (y/n):")
 randomize_nodes = True if randomize_nodes_str.lower()=="y" else False
@@ -35,24 +35,32 @@ debug = True if debug_str.lower()=="y" else False
 target = 1
 accuracy = []
 # Kc
-for kc in tqdm(np.arange(KC_SEARCH_START, KC_SEARCH_END, KC_STEP)):
+kc_range=tqdm(np.arange(KC_SEARCH_START, KC_SEARCH_END, KC_STEP))
+for kc in kc_range:
+    kc_range.set_description('kc: {}'.format(kc))
     if kc == 0:
         continue
     # Ti
-    for ti in np.arange(TI_SEARCH_START, TI_SEARCH_END, TI_STEP):
+    ti_range=tqdm(np.arange(TI_SEARCH_START, TI_SEARCH_END, TI_STEP))
+    for ti in ti_range:
+        ti_range.set_description('kc: {}, ti: {}'.format(kc, ti))
         if ti == 0:
             continue
         # Td
-        for td in np.arange(TD_SEARCH_START, TD_SEARCH_END, TD_STEP):
+        td_range = tqdm(np.arange(TD_SEARCH_START, TD_SEARCH_END, TD_STEP))
+        for td in td_range:
+            td_range.set_description('kc: {}, ti: {}, td: {}'.format(kc, ti, td))
             if td == 0:
                 continue
             # Ts
-            for ts in np.arange(TS_SEARCH_START, TS_SEARCH_END, TS_STEP):
+            ts_range = tqdm(np.arange(TS_SEARCH_START, TS_SEARCH_END, TS_STEP))
+            for ts in ts_range:
+                ts_range.set_description('kc: {}, ti: {}, td: {}, ts: {}'.format(kc, ti, td, ts))
                 if ts == 0:
                     continue
                 accs = []
                 for i in range(0, AVG_LEN):
-                    dt = DarkfiTable(0, RUNNING_TIME)
+                    dt = DarkfiTable(0, RUNNING_TIME, kc=kc, ti=ti, ts=ts, td=td)
                     darkie_accs = []
                     #sum_airdrops = 0
                     # random nodes
@@ -68,7 +76,7 @@ for kc in tqdm(np.arange(KC_SEARCH_START, KC_SEARCH_END, KC_STEP)):
                                 #continue
                             #darkie_airdrop = random.randrange(1, remaining_stake)
                         #sum_airdrops += darkie_airdrop
-                        darkie = Darkie(CONTROLLER_TYPE_TAKAHASHI, 0, ti=ti, td=td, ts=ts, kc=kc)
+                        darkie = Darkie(CONTROLLER_TYPE_TAKAHASHI)
                         dt.add_darkie(darkie)
                         darkie_acc = dt.background(rand_running_time, debug)
                         darkie_accs+=[darkie_acc]

@@ -8,11 +8,11 @@ def fact(n):
     assert (n>0)
     n = int(n)
     if n==1:
-        return 1
+        return Num(1)
     elif n==2:
-        return 2
+        return Num(2)
     else:
-        return n * fact(n-1)
+        return Num(n) * fact(n-1)
 
 
 # all inputs to this function are integers
@@ -28,7 +28,7 @@ def approx_target_in_zk(sigmas, stake):
     return -1*sum(T)
 
 def rnd():
-    return random.random()
+    return Num(random.random())
 
 def lottery(T):
     y =  rnd() * L
@@ -38,4 +38,3 @@ def lottery(T):
     with open("/tmp/sim_lottery_history.log", "a+") as f:
         f.write(lottery_line)
     return y < T
-

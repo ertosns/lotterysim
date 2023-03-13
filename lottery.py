@@ -118,14 +118,14 @@ class DarkfiTable:
         self.start_time=None
         self.end_time=None
         self.pid = None
-        self.pid = PID(kp=kp, ki=ki, kd=kd, dt=dt, target=target, Kc=kc, Ti=ti, Td=td, Ts=ts)
+        self.pid = PID(kp=kp, ki=ki, kd=kd, dt=dt, target=target, Kc=kc, Ti=ti, Td=td, Ts=ts, hp=True)
         self.controller_type=controller_type
         self.debug=debug
 
     def add_darkie(self, darkie):
         self.darkies+=[darkie]
 
-    def background(self, rand_running_time=True, debug=False):
+    def background(self, rand_running_time=True, debug=False, hp=False):
         self.debug=debug
         self.start_time=time.time()
         feedback=0 # number leads in previous slot
@@ -138,11 +138,11 @@ class DarkfiTable:
             print('running time: {}'.format(self.running_time))
         while count < self.running_time:
             winners=0
-            f = self.pid.pid_clipped(feedback, self.controller_type, debug)
+            f = self.pid.pid_clipped(feedback, self.controller_type, debug, hp)
             #note! thread overhead is 10X slower than sequential node execution!
             for i in range(len(self.darkies)):
-                self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f)
-                self.darkies[i].run()
+                self.darkies[i].set_sigma_feedback(self.Sigma, feedback, f, hp)
+                self.darkies[i].run(hp)
             for i in range(len(self.darkies)):
                 winners += self.darkies[i].won
             feedback = winners

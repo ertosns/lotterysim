@@ -4,15 +4,15 @@ import numpy as np
 from constants import *
 
 # naive factorial
-def fact(n):
+def fact(n, hp=False):
     assert (n>0)
     n = int(n)
     if n==1:
-        return Num(1)
+        return Num(1) if hp else 1
     elif n==2:
-        return Num(2)
+        return Num(2) if hp else 2
     else:
-        return Num(n) * fact(n-1)
+        return (Num(n) if hp else n)* fact(n-1, hp)
 
 
 # all inputs to this function are integers
@@ -27,11 +27,11 @@ def approx_target_in_zk(sigmas, stake):
     T = [sigma*stake**(i+1) for i, sigma in enumerate(sigmas)]
     return -1*sum(T)
 
-def rnd():
-    return Num(random.random())
+def rnd(hp=False):
+    return Num(random.random()) if hp else random.random()
 
-def lottery(T):
-    y =  rnd() * L
+def lottery(T, hp=False):
+    y =  rnd(hp) * (L_HP if hp else L)
     #print("y: ", y)
     #print("T: ", T)
     lottery_line = str(y)+","+str(T)+"\n"

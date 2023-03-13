@@ -21,6 +21,10 @@ RUNNING_TIME=1000
 #AIRDROP=1000
 NODES=1000
 
+high_precision_str = input("high precision arith (slooow) (y/n):")
+high_precision = True if high_precision_str.lower()=="y" else False
+
+
 randomize_nodes_str = input("randomize number of nodes (y/n):")
 randomize_nodes = True if randomize_nodes_str.lower()=="y" else False
 
@@ -30,22 +34,24 @@ rand_running_time = True if rand_running_time_str.lower()=="y" else False
 debug_str = input("debug mode (y/n):")
 debug = True if debug_str.lower()=="y" else False
 
-def experiment(accs=[], controller_type=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0, airdrop=0):
+
+def experiment(accs=[], controller_type=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0, airdrop=0, hp=False):
     dt = DarkfiTable(0, RUNNING_TIME, controller_type, kp=kp, ki=ki, kd=kd)
     RND_NODES = random.randint(5, NODES) if randomize_nodes else NODES
     for idx in range(0,RND_NODES):
         darkie = Darkie(airdrop+idx)
         dt.add_darkie(darkie)
-    acc = dt.background(rand_running_time)
+    acc = dt.background(rand_running_time, hp)
     accs+=[acc]
     return acc
 
-highest_acc
-def multi_trial_exp(gains, kp, ki, kd):
+highest_acc = 0
+
+def multi_trial_exp(gains, kp, ki, kd, hp=False):
     experiment_accs = []
     exp_threads = []
     for i in range(0, AVG_LEN):
-        experiment(experiment_accs, CONTROLLER_TYPE_DISCRETE, kp=kp, ki=ki, kd=kd)
+        experiment(experiment_accs, CONTROLLER_TYPE_DISCRETE, kp=kp, ki=ki, kd=kd, hp=hp)
         #exp_thread = Thread(target=experiment, args=[experiment_accs, CONTROLLER_TYPE_DISCRETE, kp, ki, kd])
         #exp_thread.start()
     #for thread in exp_threads:
@@ -60,8 +66,8 @@ def multi_trial_exp(gains, kp, ki, kd):
                 buff = 'accuracy,kp,ki,kd\n\r{},{},{},{}'.format(avg_acc, kp, ki, kd)
                 f.write(buff)
 
-def single_trial_exp(gains, kp, ki, kd):
-    acc = experiment(kp=kp, ki=ki, kd=kd)
+def single_trial_exp(gains, kp, ki, kd, hp=False):
+    acc = experiment(kp=kp, ki=ki, kd=kd, hp=hp)
     if acc > 0:
         gain = (acc, (kp, ki, kd))
         gains += [gain]
@@ -88,7 +94,7 @@ if __name__ == "__main__":
             # kd
             for kd in kd_range:
                 kd_range.set_description('kp: {}, ki: {}, kd: {}'.format(kp, ki, kd))
-                multi_trial_exp(gains, kp, ki, kd)
+                multi_trial_exp(gains, kp, ki, kd, hp=high_precision)
                 #thread = Thread(target=single_trial_exp, args=[gains, kp, ki, kd])
                 #thread.start()
                 #gains_threads += [thread]

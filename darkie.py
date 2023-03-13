@@ -22,10 +22,10 @@ class Darkie(Thread):
     def run(self, hp=False):
         k=N_TERM
         def target(tune_parameter, stake):
-            x = Num(1)  - tune_parameter
-            c = x.ln()
-            sigmas = [(c/((self.Sigma+EPSILON)**i) * (L_HP/fact(i))) for i in range(1, k+1)]
-            scaled_target = approx_target_in_zk(sigmas, stake) + BASE_L_HP
+            x = (Num(1) if hp else 1)  - (Num(tune_parameter) if hp else tune_parameter)
+            c = (x.ln() if type(x)==Num else math.log(x))
+            sigmas = [   c/((self.Sigma+EPSILON)**i) * ( ((L_HP if hp else L)/fact(i)) ) for i in range(1, k+1) ]
+            scaled_target = approx_target_in_zk(sigmas, stake) + (BASE_L_HP if hp else BASE_L)
             return scaled_target
         T = target(self.f, self.finalized_stake)
         self.won = lottery(T, hp)

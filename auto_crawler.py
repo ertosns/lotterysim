@@ -13,8 +13,8 @@ KD_STEP=0.01
 KD_SEARCH=-0.030000000000002663
 
 EPSILON=0.0001
-RUNNING_TIME=100
-NODES=500
+RUNNING_TIME=1000
+NODES=1000
 
 highest_acc = 0
 
@@ -55,6 +55,7 @@ def experiment(accs=[], controller_type=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd
 def multi_trial_exp(kp, ki, kd, distribution = [], hp=False):
     global highest_acc
     global highest_gain
+    new_record=False
     exp_threads = []
     accs = []
     for i in range(0, AVG_LEN):
@@ -66,11 +67,12 @@ def multi_trial_exp(kp, ki, kd, distribution = [], hp=False):
         gain = (kp, ki, kd)
         acc_gain = (avg_acc, gain)
         if avg_acc > highest_acc:
+            new_record = True
             highest_acc = avg_acc
             highest_gain = (kp, ki, kd)
             with open("highest_gain.txt", 'w') as f:
                 f.write(buff)
-    return buff
+    return buff, new_record
 
 SHIFTING = 0.05
 
@@ -83,20 +85,26 @@ def crawler(crawl, range_multiplier, step=0.1):
     elif crawl==KD:
         start = highest_gain[2]
 
-    range_start = (start*range_multiplier if start <=0 else -1*start) - SHIFTING
-    range_end = (-1*start if start<=0 else range_multiplier*start) + SHIFTING
+    range_start = (start*range_multiplier if start <=0 else -1*start)
+    range_end = (-1*start if start<=0 else range_multiplier*start)
     # if number of steps under 10 step resize the step to 50
-    if (range_end-range_start)/step < 10:
-        step = (range_end-range_start)/50
+    while (range_end-range_start)/step < 10:
+        range_start -= SHIFTING
+        range_end += SHIFTING
+        step /= 10
 
-    crawl_range = tqdm(np.arange(range_start, range_end, step))
+    crawl_range = np.arange(range_start, range_end, step)
+    np.random.shuffle(crawl_range)
+    crawl_range = tqdm(crawl_range)
     distribution = [random.random()*NODES for i in range(NODES)]
     for i in crawl_range:
         kp = i if crawl==KP else highest_gain[0]
         ki = i if crawl==KI else highest_gain[1]
         kd = i if crawl==KD else highest_gain[2]
-        buff = multi_trial_exp(kp, ki, kd, distribution, hp=high_precision)
+        buff, new_record = multi_trial_exp(kp, ki, kd, distribution, hp=high_precision)
         crawl_range.set_description('highest:{} / {}'.format(highest_acc, buff))
+        if new_record:
+            break
 
 while True:
     prev_highest_gain = highest_gain

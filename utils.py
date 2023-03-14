@@ -30,11 +30,10 @@ def approx_target_in_zk(sigmas, stake):
 def rnd(hp=False):
     return Num(random.random()) if hp else random.random()
 
-def lottery(T, hp=False):
+def lottery(T, hp=False, log=False):
     y =  rnd(hp) * (L_HP if hp else L)
-    #print("y: ", y)
-    #print("T: ", T)
-    lottery_line = str(y)+","+str(T)+"\n"
-    with open("/tmp/sim_lottery_history.log", "a+") as f:
-        f.write(lottery_line)
+    if log:
+        lottery_line = str(y)+","+str(T)+"\n"
+        with open("/tmp/sim_lottery_history.log", "a+") as f:
+            f.write(lottery_line)
     return y < T

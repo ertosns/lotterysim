@@ -4,13 +4,13 @@ from threading import Thread
 AVG_LEN = 5
 
 KP_STEP=0.01
-KP_SEARCH=-1.8457457784393227e-15
+KP_SEARCH=0.0659999999999891
 
 KI_STEP=0.01
-KI_SEARCH=-0.11934999999953416
+KI_SEARCH=-0.10399999999631454
 
 KD_STEP=0.01
-KD_SEARCH=-1.3322676295501878e-15
+KD_SEARCH=-0.030000000000002663
 
 EPSILON=0.0001
 RUNNING_TIME=100
@@ -90,7 +90,7 @@ def crawler(crawl, range_multiplier, step=0.1):
         step = (range_end-range_start)/50
 
     crawl_range = tqdm(np.arange(range_start, range_end, step))
-    distribution = [random.random() for i in range(NODES)]
+    distribution = [random.random()*NODES for i in range(NODES)]
     for i in crawl_range:
         kp = i if crawl==KP else highest_gain[0]
         ki = i if crawl==KI else highest_gain[1]
@@ -105,13 +105,44 @@ while True:
     if highest_gain[0] == prev_highest_gain[0]:
         KP_RANGE_MULTIPLIER+=1
         KP_STEP/=10
+    else:
+        start = highest_gain[0]
+        range_start = (start*KP_RANGE_MULTIPLIER if start <=0 else -1*start) - SHIFTING
+        range_end = (-1*start if start<=0 else KP_RANGE_MULTIPLIER*start) + SHIFTING
+        while (range_end - range_start)/KP_STEP >500:
+            if KP_STEP < 0.1:
+                KP_STEP*=10
+            KP_RANGE_MULTIPLIER-=1
+            #TODO (res) shouldn't the range also shrink?
+            # not always true.
+            # how to distinguish between thrinking range, and large step?
+            # good strategy is step shoudn't > 0.1
+            # range also should be > 0.8
+            # what about range multiplier?
+
     # ki crawl
     crawler(KI, KI_RANGE_MULTIPLIER, KI_STEP)
     if highest_gain[1] == prev_highest_gain[1]:
         KI_RANGE_MULTIPLIER+=1
         KI_STEP/=10
+    else:
+        start = highest_gain[1]
+        range_start = (start*KI_RANGE_MULTIPLIER if start <=0 else -1*start) - SHIFTING
+        range_end = (-1*start if start<=0 else KI_RANGE_MULTIPLIER*start) + SHIFTING
+        while (range_end - range_start)/KI_STEP >500:
+            if KP_STEP < 0.1:
+                KI_STEP*=10
+            KI_RANGE_MULTIPLIER-=1
     # kd crawl
     crawler(KD, KD_RANGE_MULTIPLIER, KD_STEP)
     if highest_gain[2] == prev_highest_gain[2]:
         KD_RANGE_MULTIPLIER+=1
         KD_STEP/=10
+    else:
+        start = highest_gain[2]
+        range_start = (start*KD_RANGE_MULTIPLIER if start <=0 else -1*start) - SHIFTING
+        range_end = (-1*start if start<=0 else KD_RANGE_MULTIPLIER*start) + SHIFTING
+        while (range_end - range_start)/KD_STEP >500:
+            if KD_STEP < 0.1:
+                KD_STEP*=10
+            KD_RANGE_MULTIPLIER-=1

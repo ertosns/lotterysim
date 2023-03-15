@@ -18,7 +18,7 @@ find $K_p$, $k_i$, $K_d$ for highest accuracy running the simulation on N trials
 
 ![alt text](https://github.com/ertosns/lotterysim/blob/master/heuristics.png?raw=true)
 
-notice that best parameters are spread out in the search space, picking the highest of which, and running the simulation, running for 600 slots, result in with >36% accuracy
+notice that best parameters are spread out in the search space, picking the highest of which, and running the simulation, result in with >33% accuracy
 
 ![alt text](https://github.com/ertosns/lotterysim/blob/master/f_history_processed.png?raw=true)
 

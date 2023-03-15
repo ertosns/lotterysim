@@ -2,8 +2,9 @@ from utils import *
 from threading import Thread
 
 class Darkie(Thread):
-    def __init__(self, airdrop, hp=False):
+    def __init__(self, airdrop, vesting=[], hp=False):
         Thread.__init__(self)
+        self.vesting = [0] + vesting
         self.stake = (Num(airdrop) if hp else airdrop)
         self.finalized_stake = (Num(airdrop) if hp else airdrop) # after fork finalization
         self.Sigma = None
@@ -29,6 +30,17 @@ class Darkie(Thread):
             return scaled_target
         T = target(self.f, self.finalized_stake)
         self.won = lottery(T, hp)
+
+    def update_vesting(self, slot):
+        if slot >= len(self.vesting):
+            return 0
+        slot2vest_index = int(slot/28800.0)
+        slot2vest_prev_index = int((slot-1)/28800.0)
+        slot2vest_index_shifted = slot2vest_index - 1 # by end of month
+        slot2vest_prev_index_shifted = slot2vest_prev_index - 1 # by end of month
+        vesting_value = float(self.vesting[slot2vest_index_shifted]) - self.vesting[slot2vest_prev_index_shifted]
+        self.stake+= vesting_value
+        return vesting_value
 
     def update_stake(self):
         self.stake+=REWARD

@@ -1,22 +1,19 @@
 from lottery import *
 from threading import Thread
-
+from argparse import ArgumentParser
 AVG_LEN = 5
 
 KC_STEP=0.1
-KC_SEARCH=-0.25
-
+KC_SEARCH=-0.5129999999999987
 
 TD_STEP=0.01
-TD_SEARCH=0.3
+TD_SEARCH=0.2690000000000005
 
 TI_STEP=0.01
-TI_SEARCH=-0.6
-
+TI_SEARCH=0.004000000000058401
 
 TS_STEP=0.01
-TS_SEARCH=-0.3
-
+TS_SEARCH=-1.4560000000001243
 
 EPSILON=0.0001
 RUNNING_TIME=1000
@@ -36,18 +33,17 @@ TS_RANGE_MULTIPLIER = 2
 
 highest_gain = (KC_SEARCH, TI_SEARCH, TD_SEARCH, TS_SEARCH)
 
+parser = ArgumentParser()
+parser.add_argument('-p', '--high-precision', action='store_true')
+parser.add_argument('-r', '--randomize-nodes', action='store_false')
+parser.add_argument('-t', '--rand-running-time', action='store_false')
+parser.add_argument('-d', '--debug', action='store_false')
+args = parser.parse_args()
+high_precision = args.high_precision
+randomize_nodes = args.randomize_nodes
+rand_running_time = args.rand_running_time
+debug = args.debug
 
-high_precision_str = input("high precision arith (slooow) (y/n):")
-high_precision = True if high_precision_str.lower()=="y" else False
-
-randomize_nodes_str = input("randomize number of nodes (y/n):")
-randomize_nodes = True if randomize_nodes_str.lower()=="y" else False
-
-rand_running_time_str = input("random running time (y/n):")
-rand_running_time = True if rand_running_time_str.lower()=="y" else False
-
-debug_str = input("debug mode (y/n):")
-debug = True if debug_str.lower()=="y" else False
 
 def experiment(accs=[], controller_type=CONTROLLER_TYPE_TAKAHASHI, kp=0, ki=0, kd=0, kc=0, ti=0, td=0, ts=0, distribution=[], hp=False):
     dt = DarkfiTable(sum(distribution), RUNNING_TIME, controller_type, kp=kp, ki=ki, kd=kd, kc=kc, td=td, ti=ti, ts=ts)
@@ -78,7 +74,7 @@ def multi_trial_exp(kc, td, ti, ts, distribution = [], hp=False):
             new_record = True
             highest_acc = avg_acc
             highest_gain = gain
-            with open("highest_gain_takadashi.txt", 'w') as f:
+            with open("highest_gain_takahashi.txt", 'w') as f:
                 f.write(buff)
     return buff, new_record
 

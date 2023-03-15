@@ -8,7 +8,7 @@ RUNNING_TIME = int(input("running time:"))
 
 if __name__ == "__main__":
     darkies = []
-    darkies += [ Darkie(random.gauss(20,20)*50) for id in range(100000) ]
+    darkies += [ Darkie(random.gauss(20,20)*50) for id in range(1000000) ]
     airdrop = 0
     for darkie in darkies:
         airdrop+=darkie.stake

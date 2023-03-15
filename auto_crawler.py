@@ -1,20 +1,21 @@
 from lottery import *
 from threading import Thread
+from argparse import ArgumentParser
 
 AVG_LEN = 5
 
 KP_STEP=0.01
-KP_SEARCH=0.0659999999999891
+KP_SEARCH= -0.04019999999996926
 
 KI_STEP=0.01
-KI_SEARCH=-0.10399999999631454
+KI_SEARCH=-0.002299999823093906
 
 KD_STEP=0.01
-KD_SEARCH=-0.030000000000002663
+KD_SEARCH=0.03840000000000491
 
 EPSILON=0.0001
 RUNNING_TIME=1000
-NODES=1000
+NODES = 1000
 
 highest_acc = 0
 
@@ -28,18 +29,16 @@ KD_RANGE_MULTIPLIER = 2
 
 highest_gain = (KP_SEARCH, KI_SEARCH, KD_SEARCH)
 
-
-high_precision_str = input("high precision arith (slooow) (y/n):")
-high_precision = True if high_precision_str.lower()=="y" else False
-
-randomize_nodes_str = input("randomize number of nodes (y/n):")
-randomize_nodes = True if randomize_nodes_str.lower()=="y" else False
-
-rand_running_time_str = input("random running time (y/n):")
-rand_running_time = True if rand_running_time_str.lower()=="y" else False
-
-debug_str = input("debug mode (y/n):")
-debug = True if debug_str.lower()=="y" else False
+parser = ArgumentParser()
+parser.add_argument('-p', '--high-precision', action='store_true')
+parser.add_argument('-r', '--randomize-nodes', action='store_false')
+parser.add_argument('-t', '--rand-running-time', action='store_false')
+parser.add_argument('-d', '--debug', action='store_false')
+args = parser.parse_args()
+high_precision = args.high_precision
+randomize_nodes = args.randomize_nodes
+rand_running_time = args.rand_running_time
+debug = args.debug
 
 def experiment(accs=[], controller_type=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd=0, distribution=[], hp=False):
     dt = DarkfiTable(sum(distribution), RUNNING_TIME, controller_type, kp=kp, ki=ki, kd=kd)
@@ -50,7 +49,6 @@ def experiment(accs=[], controller_type=CONTROLLER_TYPE_DISCRETE, kp=0, ki=0, kd
     acc = dt.background(rand_running_time, hp)
     accs+=[acc]
     return acc
-
 
 def multi_trial_exp(kp, ki, kd, distribution = [], hp=False):
     global highest_acc

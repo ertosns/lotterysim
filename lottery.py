@@ -43,7 +43,13 @@ class DarkfiTable:
             self.Sigma+=total_vesting_stake
             for i in range(len(self.darkies)):
                 winners += self.darkies[i].won
+                self.darkies[i].update_stake()
             feedback = winners
+            if winners==1:
+            #if count >= ERC20DRK and winners==1:
+                self.Sigma += 1
+                for i in range(len(self.darkies)):
+                    self.darkies[i].finalize_stake()
             count+=1
         self.end_time=time.time()
         return self.pid.acc()
